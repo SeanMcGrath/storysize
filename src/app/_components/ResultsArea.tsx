@@ -39,7 +39,7 @@ export default function ResultsArea({
         {participantsWithVotes.map(({ id, name, vote }) => (
           <li
             key={id}
-            className="flex min-h-16 items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2 shadow"
+            className="flex min-h-16 items-center justify-between rounded-lg border bg-white px-4 py-2 shadow"
           >
             <span>{name}</span>
             <span className="text-xl">

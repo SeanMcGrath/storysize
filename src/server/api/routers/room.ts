@@ -189,7 +189,15 @@ export const roomRouter = createTRPCRouter({
           },
         },
         include: {
-          participants: true,
+          participants: {
+            select: {
+              id: true,
+              name: true,
+            },
+            orderBy: {
+              name: "asc",
+            },
+          },
           votes: {
             include: {
               user: {
@@ -230,7 +238,15 @@ export const roomRouter = createTRPCRouter({
           },
         },
         include: {
-          participants: true,
+          participants: {
+            select: {
+              id: true,
+              name: true,
+            },
+            orderBy: {
+              name: "asc",
+            },
+          },
           votes: {
             include: {
               user: {
