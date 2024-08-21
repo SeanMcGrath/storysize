@@ -8,12 +8,15 @@ const Navbar = () => {
   const { data: session } = useSession();
 
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="fixed left-0 right-0 top-0 z-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
           <div className="flex">
-            <Link href="/" className="flex flex-shrink-0 items-center">
-              Scrum Poker
+            <Link
+              href="/"
+              className="flex flex-shrink-0 items-center text-black"
+            >
+              Storysize
             </Link>
           </div>
           <div className="flex items-center">

@@ -46,7 +46,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
   const leaving = leaveRoom.isPending || leaveRoom.isSuccess;
 
   return (
-    <li className="overflow-hidden bg-white shadow hover:bg-gray-50 sm:rounded-md">
+    <li className="overflow-hidden border bg-white shadow hover:bg-gray-50 sm:rounded-md">
       <Link
         href={`/rooms/${slug}`}
         className="group flex items-center justify-between"

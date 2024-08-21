@@ -8,19 +8,7 @@ import Spinner from "./Spinner";
 import { useToast } from "~/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
-const pointValues = [
-  "0",
-  "0.5",
-  "1",
-  "2",
-  "3",
-  "5",
-  "8",
-  "13",
-  "21",
-  "?",
-  "☕",
-];
+const pointValues = ["0.5", "1", "2", "3", "5", "8", "13", "?"];
 
 export default function RoomPage({ id }: { id: string }) {
   const router = useRouter();
@@ -173,44 +161,42 @@ export default function RoomPage({ id }: { id: string }) {
   const isCurrentUserOwner = room.ownerId === session?.user?.id;
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="flex flex-col sm:flex-row sm:justify-between">
+    <div className="container mx-auto max-w-2xl p-4">
+      <div className="flex items-center justify-center">
         <h1 className="mb-6 text-3xl font-bold">{room.name}</h1>
-        <div className="flex gap-2">
-          <Button
-            className="flex text-xs"
-            onClick={() => {
-              navigator.clipboard.writeText(
-                `${window.location.origin}/join/${room.slug}`,
-              );
+      </div>
+      <div className="mb-6 flex justify-between gap-2">
+        <Button
+          className="flex text-xs"
+          onClick={() => {
+            navigator.clipboard.writeText(
+              `${window.location.origin}/join/${room.slug}`,
+            );
 
-              toast({
-                title: "Link copied",
-                description: "Room link copied to clipboard",
-              });
-            }}
-            variant={"outline"}
+            toast({
+              title: "Link copied",
+              description: "Room link copied to clipboard",
+            });
+          }}
+          variant={"outline"}
+        >
+          Copy Link
+        </Button>
+        {isCurrentUserOwner ? (
+          <Button
+            onClick={() => deleteRoom.mutate({ roomId: room.id })}
+            variant={"destructive"}
           >
-            Copy Link
+            Delete Room
           </Button>
-          {isCurrentUserOwner ? (
-            <Button
-              onClick={() => deleteRoom.mutate({ roomId: room.id })}
-              className="flex text-xs"
-              variant={"destructive"}
-            >
-              Delete Room
-            </Button>
-          ) : (
-            <Button
-              onClick={() => leaveRoom.mutate({ roomId: room.id })}
-              className="flex text-xs"
-              variant={"destructive"}
-            >
-              Leave Room
-            </Button>
-          )}
-        </div>
+        ) : (
+          <Button
+            onClick={() => leaveRoom.mutate({ roomId: room.id })}
+            variant={"secondary"}
+          >
+            Leave Room
+          </Button>
+        )}
       </div>
       <div className="mb-8">
         <div className="grid grid-cols-3 gap-4 sm:grid-cols-6 md:grid-cols-8">
@@ -218,7 +204,7 @@ export default function RoomPage({ id }: { id: string }) {
             <Button
               key={value}
               onClick={() => handleVote(value)}
-              className={`rounded-md px-2 py-8 text-lg ${
+              className={`rounded-md border px-2 py-8 text-lg shadow ${
                 selectedValue === value
                   ? "bg-primary text-white"
                   : "bg-white text-gray-700 hover:bg-gray-50"
@@ -231,20 +217,14 @@ export default function RoomPage({ id }: { id: string }) {
       </div>
       <hr />
       <div className="my-8 space-y-4">
-        <h2 className="text-xl font-semibold">Results</h2>
         <div className="flex items-center justify-between gap-4">
-          <Button
-            onClick={handleToggleVotesVisible}
-            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            {room.votesVisible ? "Hide Votes" : "Show Votes"}
+          <Button onClick={handleToggleVotesVisible} variant={"outline"}>
+            {room.votesVisible ? "Hide" : "Reveal"}
           </Button>
+          <h2 className="text-lg font-semibold">Results</h2>
           {room.ownerId === room.participants[0]?.id && (
-            <Button
-              onClick={handleResetVotes}
-              className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-            >
-              Reset Votes
+            <Button onClick={handleResetVotes} variant="secondary">
+              Reset
             </Button>
           )}
         </div>
@@ -254,7 +234,7 @@ export default function RoomPage({ id }: { id: string }) {
             return (
               <li
                 key={participant.id}
-                className="flex min-h-16 items-center justify-between rounded-lg bg-white px-4 py-2 shadow"
+                className="flex min-h-16 items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2 shadow"
               >
                 <span>{participant.name}</span>
                 <span className="text-2xl">
