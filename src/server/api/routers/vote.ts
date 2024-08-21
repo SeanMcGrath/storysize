@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { pusherServer } from "~/lib/pusher";
 
 export const voteRouter = createTRPCRouter({
   castVote: protectedProcedure
@@ -20,7 +21,7 @@ export const voteRouter = createTRPCRouter({
           },
         });
       }
-      return ctx.db.vote.upsert({
+      const result = await ctx.db.vote.upsert({
         where: {
           userId_roomId: {
             userId: ctx.session.user.id,
@@ -36,6 +37,11 @@ export const voteRouter = createTRPCRouter({
           value: input.value,
         },
       });
+
+      // Trigger Pusher event
+      await pusherServer.trigger(`room-${input.roomId}`, "vote-update", {});
+
+      return result;
     }),
 
   resetVotes: protectedProcedure
@@ -54,9 +60,14 @@ export const voteRouter = createTRPCRouter({
         throw new Error("Only the room owner can reset votes");
       }
 
-      return ctx.db.vote.deleteMany({
+      const result = await ctx.db.vote.deleteMany({
         where: { roomId: input.roomId },
       });
+
+      // Trigger Pusher event
+      await pusherServer.trigger(`room-${input.roomId}`, "vote-reset", {});
+
+      return result;
     }),
 
   getVotes: protectedProcedure

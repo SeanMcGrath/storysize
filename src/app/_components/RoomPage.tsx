@@ -1,12 +1,13 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
 import Spinner from "./Spinner";
 import { useToast } from "~/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { pusherClient } from "~/lib/pusher";
 
 const pointValues = ["0.5", "1", "2", "3", "5", "8", "13", "?"];
 
@@ -18,12 +19,10 @@ export default function RoomPage({ id }: { id: string }) {
 
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
-  const [hasRoom, setHasRoom] = useState(false);
 
   const { data: roomById, error: roomError } = api.room.getRoom.useQuery(
     { roomId: id },
     {
-      refetchInterval: !!hasRoom ? 1000 : false, // Refetch every 1 seconds
       // only enable if no hyphen in id
       enabled: !id.includes("-") && !hasError,
     },
@@ -34,16 +33,33 @@ export default function RoomPage({ id }: { id: string }) {
     api.room.getBySlug.useQuery(
       { slug: id },
       {
-        refetchInterval: !!hasRoom ? 1000 : false, // Refetch every 1 seconds
         enabled: id.includes("-") && !hasError,
       },
     );
 
   const room = roomById ?? roomBySlug;
 
+  useEffect(() => {
+    if (room) {
+      const channel = pusherClient.subscribe(`room-${room.id}`);
+      channel.bind("vote-update", () => {
+        utils.room.getRoom.invalidate();
+        utils.room.getBySlug.invalidate();
+      });
+      channel.bind("vote-reset", () => {
+        setSelectedValue(null);
+        utils.room.getRoom.invalidate();
+        utils.room.getBySlug.invalidate();
+      });
+
+      return () => {
+        pusherClient.unsubscribe(`room-${room.id}`);
+      };
+    }
+  }, [room, utils.room.getRoom]);
+
   const leaveRoom = api.room.leave.useMutation({
     onSuccess: () => {
-      utils.room.invalidate();
       router.push("/");
       toast({
         title: "Left room",
@@ -61,7 +77,6 @@ export default function RoomPage({ id }: { id: string }) {
 
   const deleteRoom = api.room.delete.useMutation({
     onSuccess: () => {
-      utils.room.invalidate();
       router.push("/");
       toast({
         title: "Room deleted",
@@ -83,23 +98,61 @@ export default function RoomPage({ id }: { id: string }) {
     }
   }, [roomError, roomBySlugError]);
 
-  useEffect(() => {
-    if (room) {
-      setHasRoom(true);
-    }
-  }, [room]);
-
   const castVote = api.vote.castVote.useMutation({
-    onSuccess: () => utils.room.invalidate(),
+    onMutate: async ({ roomId, value }) => {
+      if (!room) return;
+
+      // Cancel any outgoing refetches
+      await utils.room.getRoom.cancel({ roomId: id });
+      await utils.room.getBySlug.cancel({ slug: room.slug });
+
+      // Snapshot the previous value
+      const previousRoom =
+        utils.room.getRoom.getData({ roomId: id }) ??
+        utils.room.getBySlug.getData({ slug: room.slug });
+
+      // Optimistically update to the new value
+      if (previousRoom && session?.user) {
+        const updateData = (old: typeof previousRoom | undefined) => {
+          if (!old) return old;
+          const updatedVotes = old.votes.filter(
+            (v) => v.userId !== session.user!.id,
+          );
+          if (value !== null) {
+            updatedVotes.push({
+              id: `temp-${Date.now()}`,
+              userId: session.user!.id,
+              value,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              roomId: old.id,
+              user: { id: session.user!.id },
+            });
+          }
+          return { ...old, votes: updatedVotes };
+        };
+
+        utils.room.getRoom.setData({ roomId: id }, updateData);
+        utils.room.getBySlug.setData({ slug: room.slug }, updateData);
+      }
+
+      return { previousRoom };
+    },
+    onError: (err, newVote, context) => {
+      if (context?.previousRoom && room) {
+        utils.room.getRoom.setData({ roomId: id }, context.previousRoom);
+        utils.room.getBySlug.setData({ slug: room.slug }, context.previousRoom);
+      }
+    },
+    onSettled: () => {
+      utils.room.getRoom.invalidate({ roomId: id });
+      utils.room.getBySlug.invalidate({ slug: room?.slug || "" });
+    },
   });
 
-  const resetVotes = api.vote.resetVotes.useMutation({
-    onSuccess: () => utils.room.invalidate(),
-  });
+  const resetVotes = api.vote.resetVotes.useMutation();
 
-  const toggleVotesVisible = api.room.toggleVotesVisible.useMutation({
-    onSuccess: () => utils.room.invalidate(),
-  });
+  const toggleVotesVisible = api.room.toggleVotesVisible.useMutation();
 
   const handleVote = (value: string) => {
     if (!room) return;
@@ -114,8 +167,8 @@ export default function RoomPage({ id }: { id: string }) {
 
   const handleResetVotes = () => {
     if (!room) return;
-    resetVotes.mutate({ roomId: room.id });
     setSelectedValue(null);
+    resetVotes.mutate({ roomId: room.id });
   };
 
   const handleToggleVotesVisible = () => {
@@ -132,6 +185,16 @@ export default function RoomPage({ id }: { id: string }) {
       setSelectedValue(userVote ? userVote.value : null);
     }
   }, [room, session?.user]);
+
+  const participantsWithVotes = useMemo(
+    () =>
+      room?.participants.map((participant) => ({
+        id: participant.id,
+        name: participant.name,
+        vote: room.votes.find((v) => v.userId === participant.id),
+      })),
+    [room?.participants, room?.votes],
+  );
 
   if (!room && !roomError) {
     return (
@@ -229,24 +292,21 @@ export default function RoomPage({ id }: { id: string }) {
           )}
         </div>
         <ul className="space-y-4">
-          {room.participants.map((participant) => {
-            const vote = room.votes.find((v) => v.userId === participant.id);
-            return (
-              <li
-                key={participant.id}
-                className="flex min-h-16 items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2 shadow"
-              >
-                <span>{participant.name}</span>
-                <span className="text-2xl">
-                  {!!vote?.value ? (
-                    <div className="rounded-md bg-gray-100 p-2 shadow-inner">
-                      {room.votesVisible ? (vote?.value ?? "?") : "?"}
-                    </div>
-                  ) : null}
-                </span>
-              </li>
-            );
-          })}
+          {participantsWithVotes?.map(({ id, name, vote }) => (
+            <li
+              key={id}
+              className="flex min-h-16 items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2 shadow"
+            >
+              <span>{name}</span>
+              <span className="text-xl">
+                {!!vote?.value ? (
+                  <div className="rounded-md bg-gray-100 p-2 shadow-inner">
+                    {room.votesVisible ? (vote?.value ?? "?") : "?"}
+                  </div>
+                ) : null}
+              </span>
+            </li>
+          ))}
         </ul>
       </div>
     </div>
