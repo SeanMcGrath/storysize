@@ -162,9 +162,63 @@ export default function RoomPage({ id }: { id: string }) {
     },
   });
 
-  const resetVotes = api.vote.resetVotes.useMutation();
+  const resetVotes = api.vote.resetVotes.useMutation({
+    onMutate: async () => {
+      if (!room) return;
 
-  const toggleVotesVisible = api.room.toggleVotesVisible.useMutation();
+      await utils.room.getRoom.cancel({ roomId: id });
+      await utils.room.getBySlug.cancel({ slug: room.slug });
+
+      // Optimistically reset the current user's vote in the cache
+      const previousRoom =
+        utils.room.getRoom.getData({ roomId: id }) ??
+        utils.room.getBySlug.getData({ slug: room.slug });
+
+      if (previousRoom && session?.user) {
+        const updateData = (old: typeof previousRoom | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            votes: old.votes.filter((v) => v.userId !== session.user!.id),
+          };
+        };
+
+        utils.room.getRoom.setData({ roomId: id }, updateData);
+        utils.room.getBySlug.setData({ slug: room.slug }, updateData);
+      }
+
+      return { previousRoom };
+    },
+  });
+
+  const toggleVotesVisible = api.room.toggleVotesVisible.useMutation({
+    onMutate: async () => {
+      if (!room) return;
+
+      await utils.room.getRoom.cancel({ roomId: id });
+      await utils.room.getBySlug.cancel({ slug: room.slug });
+
+      // Optimistically update the votes visibility in the cache
+      const previousRoom =
+        utils.room.getRoom.getData({ roomId: id }) ??
+        utils.room.getBySlug.getData({ slug: room.slug });
+
+      if (previousRoom) {
+        const updateData = (old: typeof previousRoom | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            votesVisible: !old.votesVisible,
+          };
+        };
+
+        utils.room.getRoom.setData({ roomId: id }, updateData);
+        utils.room.getBySlug.setData({ slug: room.slug }, updateData);
+      }
+
+      return { previousRoom };
+    },
+  });
 
   const handleVote = (value: string) => {
     if (!room) return;
