@@ -1,5 +1,6 @@
 import { Button } from "~/components/ui/button";
 import { RouterOutputs } from "~/trpc/react";
+import { Eye, EyeOff, RotateCcw } from "lucide-react";
 
 type Room = RouterOutputs["room"]["getRoom"];
 
@@ -22,14 +23,21 @@ export default function ResultsArea({
     <div className="my-8 space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-1">
-          <Button onClick={onToggleVotesVisible} variant={"outline"}>
+          <Button onClick={onToggleVotesVisible} variant={"outline"} className="flex items-center gap-2">
+            {room.votesVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             {room.votesVisible ? "Hide" : "Reveal"}
           </Button>
         </div>
         <h2 className="text-lg font-semibold">Results</h2>
         <div className="flex flex-1 justify-end">
           {room.ownerId === room.participants[0]?.id && (
-            <Button onClick={onResetVotes} variant="secondary">
+            <Button
+              onClick={onResetVotes}
+              variant="secondary"
+              className="flex items-center gap-2"
+              disabled={room.votes.length === 0}
+            >
+              <RotateCcw className="h-4 w-4" />
               Reset
             </Button>
           )}

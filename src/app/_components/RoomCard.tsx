@@ -3,6 +3,7 @@ import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
 import Spinner from "./Spinner";
 import { useToast } from "~/components/ui/use-toast";
+import { Copy, Trash2, LogOut } from "lucide-react";
 
 interface RoomCardProps {
   id: string;
@@ -60,7 +61,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
         <div className="flex flex-1"></div>
         <div className="flex-0 mr-6 flex items-center gap-2">
           <Button
-            className="flex text-xs"
+            className="flex items-center gap-2 text-xs"
             onClick={(event) => {
               navigator.clipboard.writeText(
                 `${window.location.origin}/join/${slug}`,
@@ -74,11 +75,12 @@ const RoomCard: React.FC<RoomCardProps> = ({
             }}
             variant={"secondary"}
           >
+            <Copy className="h-4 w-4" />
             Copy Link
           </Button>
           {isCurrentUserOwner ? (
             <Button
-              className="flex text-xs"
+              className="flex items-center gap-2 text-xs"
               onClick={(event) => {
                 deleteRoom.mutate({ roomId: id });
                 event.preventDefault();
@@ -87,11 +89,16 @@ const RoomCard: React.FC<RoomCardProps> = ({
               disabled={deleting}
               variant={"destructive"}
             >
-              {deleting ? <Spinner /> : "Delete"}
+              {deleting ? <Spinner /> : (
+                <>
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </>
+              )}
             </Button>
           ) : (
             <Button
-              className="flex text-xs"
+              className="flex items-center gap-2 text-xs"
               onClick={(event) => {
                 leaveRoom.mutate({ roomId: id });
                 event.preventDefault();
@@ -100,7 +107,12 @@ const RoomCard: React.FC<RoomCardProps> = ({
               disabled={leaving}
               variant={"destructive"}
             >
-              {leaving ? <Spinner /> : "Leave"}
+              {leaving ? <Spinner /> : (
+                <>
+                  <LogOut className="h-4 w-4" />
+                  Leave
+                </>
+              )}
             </Button>
           )}
         </div>
