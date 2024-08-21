@@ -72,7 +72,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center space-y-2">
+    <div className="mx-auto flex flex-1 max-w-2xl flex-col items-center justify-center space-y-2">
       <ul className="w-full space-y-2">
         {rooms.map((room) => (
           <RoomCard

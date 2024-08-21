@@ -10,6 +10,7 @@ import useRoomData from "../hooks/useRoomData";
 import useRoomActions from "../hooks/useRoomActions";
 import { pusherClient } from "~/lib/pusher";
 import { api } from "~/trpc/react";
+import { Separator } from "~/components/ui/separator";
 
 export default function RoomPage({ id }: { id: string }) {
   const utils = api.useUtils();
@@ -100,6 +101,7 @@ export default function RoomPage({ id }: { id: string }) {
         onDeleteRoom={() => deleteRoom.mutate({ roomId: room.id })}
       />
       <VotingArea selectedValue={selectedValue} onVote={handleVote} />
+      <Separator />
       <ResultsArea
         room={room}
         onToggleVotesVisible={handleToggleVotesVisible}

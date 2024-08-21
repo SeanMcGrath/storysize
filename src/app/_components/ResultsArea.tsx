@@ -1,6 +1,7 @@
 import { Button } from "~/components/ui/button";
 import { RouterOutputs } from "~/trpc/react";
 import { Eye, EyeOff, RotateCcw } from "lucide-react";
+import VoteCard from "./VoteCard";
 
 type Room = RouterOutputs["room"]["getRoom"];
 
@@ -16,11 +17,11 @@ export default function ResultsArea({
   const participantsWithVotes = room.participants.map((participant) => ({
     id: participant.id,
     name: participant.name,
-    vote: room.votes.find((v) => v.userId === participant.id),
+    vote: room.votes.find((v) => v.userId === participant.id)?.value ?? null,
   }));
 
   return (
-    <div className="my-8 space-y-4">
+    <div className="my-8 space-y-8">
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-1">
           <Button onClick={onToggleVotesVisible} variant={"outline"} className="flex items-center gap-2">
@@ -43,20 +44,11 @@ export default function ResultsArea({
           )}
         </div>
       </div>
-      <ul className="space-y-4">
+      <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {participantsWithVotes.map(({ id, name, vote }) => (
-          <li
-            key={id}
-            className="flex min-h-16 items-center justify-between rounded-lg border bg-white px-4 py-2 shadow"
-          >
-            <span>{name}</span>
-            <span className="text-xl">
-              {!!vote?.value ? (
-                <div className="rounded-md bg-gray-100 p-2 shadow-inner">
-                  {room.votesVisible ? (vote?.value ?? "?") : "?"}
-                </div>
-              ) : null}
-            </span>
+          <li key={id} className="flex flex-col items-center space-y-2">
+            <VoteCard value={vote} isRevealed={room.votesVisible} />
+            <span className="text-sm font-medium">{name}</span>
           </li>
         ))}
       </ul>
