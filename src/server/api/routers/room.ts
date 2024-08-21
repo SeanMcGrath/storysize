@@ -7,6 +7,7 @@ import {
   colors,
   animals,
 } from "unique-names-generator";
+import { pusherServer } from "~/lib/pusher";
 
 export const roomRouter = createTRPCRouter({
   create: protectedProcedure
@@ -63,7 +64,7 @@ export const roomRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.room.update({
+      const result = await ctx.db.room.update({
         where: { id: input.roomId },
         data: {
           participants: {
@@ -71,6 +72,12 @@ export const roomRouter = createTRPCRouter({
           },
         },
       });
+
+      await pusherServer.trigger(`room-${input.roomId}`, "participant-joined", {
+        userId: ctx.session.user.id,
+      });
+
+      return result;
     }),
 
   joinBySlug: protectedProcedure
@@ -94,7 +101,7 @@ export const roomRouter = createTRPCRouter({
         });
       }
 
-      return ctx.db.room.update({
+      const result = await ctx.db.room.update({
         where: { id: room.id },
         data: {
           participants: {
@@ -102,6 +109,12 @@ export const roomRouter = createTRPCRouter({
           },
         },
       });
+
+      await pusherServer.trigger(`room-${room.id}`, "participant-joined", {
+        userId: ctx.session.user.id,
+      });
+
+      return result;
     }),
 
   leave: protectedProcedure
@@ -142,7 +155,7 @@ export const roomRouter = createTRPCRouter({
         });
       }
 
-      return ctx.db.room.update({
+      const result = await ctx.db.room.update({
         where: { id: input.roomId },
         data: {
           participants: {
@@ -150,6 +163,12 @@ export const roomRouter = createTRPCRouter({
           },
         },
       });
+
+      await pusherServer.trigger(`room-${input.roomId}`, "participant-left", {
+        userId: ctx.session.user.id,
+      });
+
+      return result;
     }),
 
   getRoom: protectedProcedure
@@ -268,12 +287,21 @@ export const roomRouter = createTRPCRouter({
         });
       }
 
-      return ctx.db.room.update({
+      const result = await ctx.db.room.update({
         where: { id: input.roomId },
         data: {
           votesVisible: !room.votesVisible,
         },
       });
+
+      // Trigger Pusher event
+      await pusherServer.trigger(
+        `room-${input.roomId}`,
+        "vote-visibility-toggle",
+        {},
+      );
+
+      return result;
     }),
 
   delete: protectedProcedure

@@ -51,12 +51,24 @@ export default function RoomPage({ id }: { id: string }) {
         utils.room.getRoom.invalidate();
         utils.room.getBySlug.invalidate();
       });
+      channel.bind("vote-visibility-toggle", () => {
+        utils.room.getRoom.invalidate();
+        utils.room.getBySlug.invalidate();
+      });
+      channel.bind("participant-joined", () => {
+        utils.room.getRoom.invalidate();
+        utils.room.getBySlug.invalidate();
+      });
+      channel.bind("participant-left", () => {
+        utils.room.getRoom.invalidate();
+        utils.room.getBySlug.invalidate();
+      });
 
       return () => {
         pusherClient.unsubscribe(`room-${room.id}`);
       };
     }
-  }, [room, utils.room.getRoom]);
+  }, [room, utils.room.getRoom, utils.room.getBySlug]);
 
   const leaveRoom = api.room.leave.useMutation({
     onSuccess: () => {
@@ -178,7 +190,7 @@ export default function RoomPage({ id }: { id: string }) {
 
   // Set the initial selected value based on the user's vote from the room data
   useEffect(() => {
-    if (room && session?.user && selectedValue === null) {
+    if (room && session?.user && !selectedValue) {
       const userVote = room.votes.find(
         (vote) => vote.userId === session.user.id,
       );
@@ -281,15 +293,19 @@ export default function RoomPage({ id }: { id: string }) {
       <hr />
       <div className="my-8 space-y-4">
         <div className="flex items-center justify-between gap-4">
-          <Button onClick={handleToggleVotesVisible} variant={"outline"}>
-            {room.votesVisible ? "Hide" : "Reveal"}
-          </Button>
-          <h2 className="text-lg font-semibold">Results</h2>
-          {room.ownerId === room.participants[0]?.id && (
-            <Button onClick={handleResetVotes} variant="secondary">
-              Reset
+          <div className="flex flex-1">
+            <Button onClick={handleToggleVotesVisible} variant={"outline"}>
+              {room.votesVisible ? "Hide" : "Reveal"}
             </Button>
-          )}
+          </div>
+          <h2 className="text-lg font-semibold">Results</h2>
+          <div className="flex flex-1 justify-end">
+            {room.ownerId === room.participants[0]?.id && (
+              <Button onClick={handleResetVotes} variant="secondary">
+                Reset
+              </Button>
+            )}
+          </div>
         </div>
         <ul className="space-y-4">
           {participantsWithVotes?.map(({ id, name, vote }) => (
