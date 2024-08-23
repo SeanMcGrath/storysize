@@ -94,7 +94,7 @@ export default function useRoomActions(
       // Optimistically update to reset votes
       const updateData = (old: typeof previousRoom) => {
         if (!old) return old;
-        return { ...old, votes: [] };
+        return { ...old, votesVisible: false, votes: [] };
       };
 
       utils.room.getRoom.setData({ roomId: room.id }, updateData);

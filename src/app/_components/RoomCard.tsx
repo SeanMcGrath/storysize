@@ -89,7 +89,9 @@ const RoomCard: React.FC<RoomCardProps> = ({
               disabled={deleting}
               variant={"destructive"}
             >
-              {deleting ? <Spinner /> : (
+              {deleting ? (
+                <Spinner />
+              ) : (
                 <>
                   <Trash2 className="h-4 w-4" />
                   Delete
@@ -107,7 +109,9 @@ const RoomCard: React.FC<RoomCardProps> = ({
               disabled={leaving}
               variant={"destructive"}
             >
-              {leaving ? <Spinner /> : (
+              {leaving ? (
+                <Spinner />
+              ) : (
                 <>
                   <LogOut className="h-4 w-4" />
                   Leave

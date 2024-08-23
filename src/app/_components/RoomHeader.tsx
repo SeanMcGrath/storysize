@@ -42,12 +42,20 @@ export default function RoomHeader({
           Copy Link
         </Button>
         {isCurrentUserOwner ? (
-          <Button onClick={onDeleteRoom} variant={"destructive"} className="flex items-center gap-2">
+          <Button
+            onClick={onDeleteRoom}
+            variant={"destructive"}
+            className="flex items-center gap-2"
+          >
             <Trash2 className="h-4 w-4" />
             Delete Room
           </Button>
         ) : (
-          <Button onClick={onLeaveRoom} variant={"secondary"} className="flex items-center gap-2">
+          <Button
+            onClick={onLeaveRoom}
+            variant={"secondary"}
+            className="flex items-center gap-2"
+          >
             <LogOut className="h-4 w-4" />
             Leave Room
           </Button>

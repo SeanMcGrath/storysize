@@ -7,7 +7,7 @@ import { Toaster } from "~/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Scrum Poker",
+  title: "Storysize",
   description: "A Scrum Poker app for agile teams",
 };
 
@@ -22,7 +22,7 @@ export default function RootLayout({
         <Providers>
           <div className="flex min-h-screen flex-col items-center pt-16">
             <Navbar />
-            <main className="flex flex-1 justify-center w-full max-w-7xl py-6 sm:px-6 lg:px-8">
+            <main className="flex w-full max-w-7xl flex-1 justify-center py-6 sm:px-6 lg:px-8">
               {children}
             </main>
           </div>

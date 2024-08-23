@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import Spinner from "./Spinner";
@@ -53,12 +53,17 @@ export default function HomePage() {
       </div>
     );
   }
-
   if (!session) {
     return (
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Scrum Poker</h1>
-        <p className="mb-4">Please sign in to create or join rooms.</p>
+      <div className="flex flex-1 flex-col items-center justify-center text-center">
+        <h1 className="mb-4 text-4xl font-bold">Welcome to Storysize</h1>
+        <p className="mb-4">
+          Please{" "}
+          <Button onClick={() => signIn()} variant={"outline"} className="p-2">
+            sign in
+          </Button>{" "}
+          to create or join rooms.
+        </p>
       </div>
     );
   }
@@ -72,7 +77,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="mx-auto flex flex-1 max-w-2xl flex-col items-center justify-center space-y-2">
+    <div className="mx-auto flex max-w-2xl flex-1 flex-col items-center justify-center space-y-2">
       <ul className="w-full space-y-2">
         {rooms.map((room) => (
           <RoomCard

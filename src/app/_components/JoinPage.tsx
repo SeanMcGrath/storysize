@@ -2,9 +2,10 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { api } from "~/trpc/react";
 import Spinner from "./Spinner";
+import Link from "next/link";
 
 const JoinPage: React.FC<{ roomSlug: string }> = ({ roomSlug }) => {
   const { data: session, status: sessionStatus } = useSession();
@@ -42,8 +43,18 @@ const JoinPage: React.FC<{ roomSlug: string }> = ({ roomSlug }) => {
   if (!session) {
     return (
       <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Scrum Poker</h1>
-        <p className="mb-4">Please sign in to create or join rooms.</p>
+        <h1 className="mb-4 text-4xl font-bold">Welcome to Storysize</h1>
+        <p className="mb-4">
+          Please{" "}
+          <Link
+            href="#"
+            onClick={() => signIn()}
+            className="text-blue-600 hover:underline"
+          >
+            sign in
+          </Link>{" "}
+          to create or join rooms.
+        </p>
       </div>
     );
   }

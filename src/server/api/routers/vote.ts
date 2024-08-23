@@ -43,7 +43,6 @@ export const voteRouter = createTRPCRouter({
 
       return result;
     }),
-
   resetVotes: protectedProcedure
     .input(
       z.object({
@@ -60,14 +59,21 @@ export const voteRouter = createTRPCRouter({
         throw new Error("Only the room owner can reset votes");
       }
 
-      const result = await ctx.db.vote.deleteMany({
-        where: { roomId: input.roomId },
-      });
+      // Delete all votes and update room in parallel
+      const [voteResult] = await Promise.all([
+        ctx.db.vote.deleteMany({
+          where: { roomId: input.roomId },
+        }),
+        ctx.db.room.update({
+          where: { id: input.roomId },
+          data: { votesVisible: false },
+        }),
+      ]);
 
       // Trigger Pusher event
       await pusherServer.trigger(`room-${input.roomId}`, "vote-reset", {});
 
-      return result;
+      return voteResult;
     }),
 
   getVotes: protectedProcedure

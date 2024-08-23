@@ -20,12 +20,23 @@ export default function ResultsArea({
     vote: room.votes.find((v) => v.userId === participant.id)?.value ?? null,
   }));
 
+  const hasVotes = room.votes.length > 0;
+
   return (
     <div className="my-8 space-y-8">
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-1">
-          <Button onClick={onToggleVotesVisible} variant={"outline"} className="flex items-center gap-2">
-            {room.votesVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          <Button
+            onClick={onToggleVotesVisible}
+            variant={"outline"}
+            className="flex items-center gap-2"
+            disabled={!hasVotes}
+          >
+            {room.votesVisible ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
             {room.votesVisible ? "Hide" : "Reveal"}
           </Button>
         </div>
@@ -36,7 +47,7 @@ export default function ResultsArea({
               onClick={onResetVotes}
               variant="secondary"
               className="flex items-center gap-2"
-              disabled={room.votes.length === 0}
+              disabled={!hasVotes}
             >
               <RotateCcw className="h-4 w-4" />
               Reset
