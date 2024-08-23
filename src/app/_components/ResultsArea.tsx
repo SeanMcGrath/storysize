@@ -22,6 +22,33 @@ export default function ResultsArea({
 
   const hasVotes = room.votes.length > 0;
 
+  const calculateVoteStatistics = () => {
+    const validVotes = room.votes
+      .filter((v) => v.value !== "?")
+      .map((v) => Number(v.value));
+    if (validVotes.length === 0) return null;
+
+    const modeMap = new Map();
+    let maxCount = 0;
+    let mode = validVotes[0];
+
+    validVotes.forEach((vote) => {
+      const count = (modeMap.get(vote) || 0) + 1;
+      modeMap.set(vote, count);
+      if (count > maxCount) {
+        maxCount = count;
+        mode = vote;
+      }
+    });
+
+    const average =
+      validVotes.reduce((sum, vote) => sum + vote, 0) / validVotes.length;
+
+    return { mode, average: average.toFixed(1) };
+  };
+
+  const voteStatistics = room.votesVisible ? calculateVoteStatistics() : null;
+
   return (
     <div className="my-8 space-y-8">
       <div className="flex items-center justify-between gap-4">
@@ -63,6 +90,24 @@ export default function ResultsArea({
           </li>
         ))}
       </ul>
+      {room.votesVisible && voteStatistics && (
+        <div className="mt-6 hidden text-center sm:block">
+          <div className="flex justify-center space-x-8">
+            <div>
+              <span className="text-sm text-muted-foreground">
+                Most Common:
+              </span>
+              <span className="ml-2 font-semibold">{voteStatistics.mode}</span>
+            </div>
+            <div>
+              <span className="text-sm text-muted-foreground">Average:</span>
+              <span className="ml-2 font-semibold">
+                {voteStatistics.average}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
