@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Button } from "~/components/ui/button";
+import CardStackIcon from "~/app/_components/CardStackIcon";
 
 const Navbar = () => {
   const { data: session } = useSession();
@@ -16,6 +17,7 @@ const Navbar = () => {
               href="/"
               className="flex flex-shrink-0 items-center text-black"
             >
+              <CardStackIcon className="mr-2" />
               Storysize
             </Link>
           </div>
