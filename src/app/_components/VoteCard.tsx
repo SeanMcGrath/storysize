@@ -15,7 +15,7 @@ const VoteCard: React.FC<VoteCardProps> = ({ value, isRevealed }) => {
   return (
     <div className="perspective-1000 h-24 w-16">
       <div
-        className={`duration-600 relative h-full w-full transition-transform ${
+        className={`relative h-full w-full transition-transform duration-600 ${
           isRevealed ? "[transform:rotateY(180deg)]" : ""
         } preserve-3d`}
       >

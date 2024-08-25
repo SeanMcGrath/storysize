@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Spinner from "./Spinner";
 import RoomCard from "./RoomCard";
 import { Button } from "~/components/ui/button";
+import StructuredData from "./StructuredData";
 
 export default function HomePage() {
   const { data: session, status: sessionStatus } = useSession();
@@ -47,80 +48,72 @@ export default function HomePage() {
   };
 
   if (sessionStatus === "loading") {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
-  if (!session) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Storysize</h1>
-        <p className="mb-4">
-          Please{" "}
-          <Button onClick={() => signIn()} variant={"outline"} className="p-2">
-            sign in
-          </Button>{" "}
-          to create or join rooms.
-        </p>
-      </div>
-    );
-  }
-
-  if (roomsLoading || !rooms) {
-    return (
-      <div className="flex items-center justify-center">
-        <Spinner />
-      </div>
-    );
+    return <Spinner />;
   }
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-1 flex-col items-center justify-center space-y-2">
-      <ul className="w-full space-y-2">
-        {rooms.map((room) => (
-          <RoomCard
-            key={room.id}
-            id={room.id}
-            name={room.name}
-            slug={room.slug}
-            createdAt={room.createdAt}
-            isCurrentUserOwner={room.ownerId === session.user.id}
-          />
-        ))}
-      </ul>
-
-      <Button
-        className="flex h-20 w-full flex-col justify-center rounded-md border-2 border-dashed border-gray-300 p-4 hover:bg-gray-200"
-        variant={"ghost"}
-        onClick={() => !isCreating && setIsCreating(true)}
-      >
-        {isCreating ? (
-          <form
-            onSubmit={handleCreateRoom}
-            className="flex w-full items-center"
-          >
-            <input
-              type="text"
-              value={roomName}
-              onChange={(e) => setRoomName(e.target.value)}
-              placeholder="Enter room name"
-              className="flex-grow rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
-              disabled={isLoading}
-            />
+    <>
+      <StructuredData />
+      {!session ? (
+        <div className="flex flex-col items-center justify-center text-center">
+          <p className="mb-4">
+            Please{" "}
             <Button
-              type="submit"
-              className="ml-2 rounded-md px-4 py-2"
-              disabled={isLoading || !roomName}
+              onClick={() => signIn()}
+              variant={"outline"}
+              className="p-2"
             >
-              {isLoading ? <Spinner color="white" /> : "Create"}
+              sign in
+            </Button>{" "}
+            to create or join rooms.
+          </p>
+        </div>
+      ) : (
+        <>
+          <ul className="w-full space-y-2">
+            {rooms?.map((room) => (
+              <RoomCard
+                key={room.id}
+                id={room.id}
+                name={room.name}
+                slug={room.slug}
+                createdAt={room.createdAt}
+                isCurrentUserOwner={room.ownerId === session.user.id}
+              />
+            ))}
+            <Button
+              className="flex h-20 w-full flex-col justify-center rounded-md border-2 border-dashed border-gray-300 p-4 hover:bg-gray-200"
+              variant={"ghost"}
+              onClick={() => !isCreating && setIsCreating(true)}
+            >
+              {isCreating ? (
+                <form
+                  onSubmit={handleCreateRoom}
+                  className="flex w-full items-center"
+                >
+                  <input
+                    type="text"
+                    value={roomName}
+                    onChange={(e) => setRoomName(e.target.value)}
+                    placeholder="Enter room name"
+                    className="flex-grow rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+                    disabled={isLoading}
+                  />
+                  <Button
+                    type="submit"
+                    className="ml-2 rounded-md px-4 py-2"
+                    disabled={isLoading || !roomName}
+                  >
+                    {isLoading ? <Spinner color="white" /> : "Create"}
+                  </Button>
+                </form>
+              ) : (
+                <div>+ Create Room</div>
+              )}
             </Button>
-          </form>
-        ) : (
-          <div>+ Create Room</div>
-        )}
-      </Button>
-    </div>
+          </ul>
+        </>
+      )}
+    </>
   );
 }

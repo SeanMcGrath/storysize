@@ -3,13 +3,18 @@ import { Inter } from "next/font/google";
 import Providers from "~/app/_components/Providers";
 import Navbar from "~/app/_components/Navbar";
 import { Toaster } from "~/components/ui/toaster";
-import { Analytics } from "@vercel/analytics/react"
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Storysize",
-  description: "A Scrum Poker app for agile teams",
+  metadataBase: new URL("https://storysize.co"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    images: "/og-image.png",
+  },
 };
 
 export default function RootLayout({
