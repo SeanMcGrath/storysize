@@ -8,13 +8,14 @@ import VotingArea from "./VotingArea";
 import ResultsArea from "./ResultsArea";
 import useRoomData from "../hooks/useRoomData";
 import useRoomActions from "../hooks/useRoomActions";
-import { pusherClient } from "~/lib/pusher";
 import { api } from "~/trpc/react";
 import { Separator } from "~/components/ui/separator";
+import { usePusher } from "../contexts/PusherContext";
 
 export default function RoomPage({ id }: { id: string }) {
   const utils = api.useUtils();
   const { data: session } = useSession();
+  const { pusherClient } = usePusher();
 
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
 
@@ -28,7 +29,7 @@ export default function RoomPage({ id }: { id: string }) {
   } = useRoomActions(room, selectedValue, setSelectedValue);
 
   useEffect(() => {
-    if (room) {
+    if (room && pusherClient) {
       const channel = pusherClient.subscribe(`room-${room.id}`);
       channel.bind("vote-update", () => {
         utils.room.getRoom.invalidate();
@@ -56,7 +57,7 @@ export default function RoomPage({ id }: { id: string }) {
         pusherClient.unsubscribe(`room-${room.id}`);
       };
     }
-  }, [room, utils.room.getRoom, utils.room.getBySlug]);
+  }, [room, utils.room.getRoom, utils.room.getBySlug, pusherClient]);
 
   // Set the initial selected value based on the user's vote from the room data
   useEffect(() => {

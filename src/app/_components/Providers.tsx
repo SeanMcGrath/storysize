@@ -2,11 +2,14 @@
 
 import { SessionProvider } from "next-auth/react";
 import { TRPCReactProvider } from "~/trpc/react";
+import { PusherProvider } from "../contexts/PusherContext";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <SessionProvider>
-      <TRPCReactProvider>{children}</TRPCReactProvider>
+      <PusherProvider>
+        <TRPCReactProvider>{children}</TRPCReactProvider>
+      </PusherProvider>
     </SessionProvider>
   );
 };
