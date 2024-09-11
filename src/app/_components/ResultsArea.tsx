@@ -69,17 +69,15 @@ export default function ResultsArea({
         </div>
         <h2 className="text-lg font-semibold">Results</h2>
         <div className="flex flex-1 justify-end">
-          {room.ownerId === room.participants[0]?.id && (
-            <Button
-              onClick={onResetVotes}
-              variant="secondary"
-              className="flex items-center gap-2"
-              disabled={!hasVotes}
-            >
-              <RotateCcw className="h-4 w-4" />
-              Reset
-            </Button>
-          )}
+          <Button
+            onClick={onResetVotes}
+            variant="secondary"
+            className="flex items-center gap-2"
+            disabled={!hasVotes}
+          >
+            <RotateCcw className="h-4 w-4" />
+            Reset
+          </Button>
         </div>
       </div>
       <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

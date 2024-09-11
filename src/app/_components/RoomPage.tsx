@@ -11,11 +11,15 @@ import useRoomActions from "../hooks/useRoomActions";
 import { api } from "~/trpc/react";
 import { Separator } from "~/components/ui/separator";
 import { usePusher } from "../contexts/PusherContext";
+import { useRouter } from "next/navigation";
+import { useToast } from "~/components/ui/use-toast";
 
 export default function RoomPage({ id }: { id: string }) {
   const utils = api.useUtils();
   const { data: session } = useSession();
   const { pusherClient } = usePusher();
+  const router = useRouter();
+  const { toast } = useToast();
 
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
 
@@ -52,12 +56,27 @@ export default function RoomPage({ id }: { id: string }) {
         utils.room.getRoom.invalidate();
         utils.room.getBySlug.invalidate();
       });
+      channel.bind("room-closed", () => {
+        router.push("/");
+        toast({
+          title: "Room closed",
+          description: "The room owner has closed this room.",
+          variant: "destructive",
+        });
+      });
 
       return () => {
         pusherClient.unsubscribe(`room-${room.id}`);
       };
     }
-  }, [room, utils.room.getRoom, utils.room.getBySlug, pusherClient]);
+  }, [
+    room,
+    utils.room.getRoom,
+    utils.room.getBySlug,
+    pusherClient,
+    router,
+    toast,
+  ]);
 
   // Set the initial selected value based on the user's vote from the room data
   useEffect(() => {
