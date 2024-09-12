@@ -345,11 +345,16 @@ export const roomRouter = createTRPCRouter({
         });
       }
 
-      return ctx.db.room.update({
+      const result = await ctx.db.room.update({
         where: { id: input.roomId },
         data: {
-          deletedAt: new Date(), // Set the deletedAt field to the current date
+          deletedAt: new Date(),
         },
       });
+
+      // Trigger Pusher event for room closure
+      await pusherServer.trigger(`room-${input.roomId}`, "room-closed", {});
+
+      return result;
     }),
 });

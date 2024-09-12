@@ -50,13 +50,20 @@ export const voteRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      // Check if the user is the room owner
+      // Check if the user is a participant in the room
       const room = await ctx.db.room.findUnique({
-        where: { id: input.roomId },
+        where: { 
+          id: input.roomId,
+          participants: {
+            some: {
+              id: ctx.session.user.id
+            }
+          }
+        },
       });
 
-      if (room?.ownerId !== ctx.session.user.id) {
-        throw new Error("Only the room owner can reset votes");
+      if (!room) {
+        throw new Error("You must be a participant to reset votes");
       }
 
       // Delete all votes and update room in parallel
