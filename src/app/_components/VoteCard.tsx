@@ -42,7 +42,9 @@ const VoteCard: React.FC<VoteCardProps> = ({ value, isRevealed }) => {
         </div>
         {/* Card front */}
         <div className="backface-hidden absolute h-full w-full rounded-lg bg-white p-0.5 shadow-md [transform:rotateY(180deg)]">
-          <div className={`relative flex h-full w-full items-center justify-center rounded-md border ${colorMap[value] || 'border-gray-200 bg-white'}`}>
+          <div
+            className={`relative flex h-full w-full items-center justify-center rounded-md border ${colorMap[value] || "border-gray-200 bg-white"}`}
+          >
             {/* Top-left corner */}
             <div className="absolute left-1 top-1 text-xs font-bold text-gray-700">
               {value}

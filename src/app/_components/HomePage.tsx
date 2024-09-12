@@ -18,11 +18,7 @@ export default function HomePage() {
 
   const createRoom = api.room.create.useMutation();
 
-  const {
-    data: rooms,
-    isLoading: roomsLoading,
-    refetch,
-  } = api.room.listRooms.useQuery();
+  const { data: rooms, refetch } = api.room.listRooms.useQuery();
 
   const handleCreateRoom = (e: React.FormEvent) => {
     e.preventDefault();

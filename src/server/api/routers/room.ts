@@ -182,11 +182,6 @@ export const roomRouter = createTRPCRouter({
         where: {
           id: input.roomId,
           deletedAt: null,
-          participants: {
-            some: {
-              id: ctx.session.user.id,
-            },
-          },
         },
         include: {
           participants: {
@@ -231,11 +226,6 @@ export const roomRouter = createTRPCRouter({
         where: {
           slug: input.slug,
           deletedAt: null,
-          participants: {
-            some: {
-              id: ctx.session.user.id,
-            },
-          },
         },
         include: {
           participants: {

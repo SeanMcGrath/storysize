@@ -181,6 +181,17 @@ export default function useRoomActions(
         title: "Room deleted",
         description: "The room has been successfully deleted",
       });
+      utils.room.getRoom.invalidate();
+      utils.room.getBySlug.invalidate();
+      utils.room.listRooms.invalidate();
+    },
+  });
+
+  const joinRoom = api.room.joinBySlug.useMutation({
+    onSuccess: () => {
+      utils.room.getRoom.invalidate();
+      utils.room.getBySlug.invalidate();
+      utils.room.listRooms.invalidate();
     },
   });
 
@@ -212,5 +223,6 @@ export default function useRoomActions(
     handleToggleVotesVisible,
     leaveRoom,
     deleteRoom,
+    joinRoom,
   };
 }

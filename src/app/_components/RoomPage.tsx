@@ -13,6 +13,7 @@ import { Separator } from "~/components/ui/separator";
 import { usePusher } from "../contexts/PusherContext";
 import { useRouter } from "next/navigation";
 import { useToast } from "~/components/ui/use-toast";
+import { join } from "path";
 
 export default function RoomPage({ id }: { id: string }) {
   const utils = api.useUtils();
@@ -30,7 +31,20 @@ export default function RoomPage({ id }: { id: string }) {
     handleToggleVotesVisible,
     leaveRoom,
     deleteRoom,
+    joinRoom,
   } = useRoomActions(room, selectedValue, setSelectedValue);
+
+  useEffect(() => {
+    if (
+      room &&
+      session &&
+      !joinRoom.isPending &&
+      !joinRoom.isSuccess &&
+      !room.participants.some((p: { id: string }) => p.id === session.user.id)
+    ) {
+      joinRoom.mutate({ slug: room.slug });
+    }
+  }, [room, session, joinRoom]);
 
   useEffect(() => {
     if (room && pusherClient) {
@@ -57,6 +71,8 @@ export default function RoomPage({ id }: { id: string }) {
         utils.room.getBySlug.invalidate();
       });
       channel.bind("room-closed", () => {
+        utils.room.getRoom.invalidate();
+        utils.room.getBySlug.invalidate();
         router.push("/");
         toast({
           title: "Room closed",
@@ -96,10 +112,22 @@ export default function RoomPage({ id }: { id: string }) {
     );
   }
 
+  if (error == "Room not found") {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <p className="text-center">
+          Oops! It looks like this room doesn't exist.
+          <br />
+          Why not try creating a new one or joining another?
+        </p>
+      </div>
+    );
+  }
+
   if (!!error) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p>Error: {}</p>
+        <p>Error: {error}</p>
       </div>
     );
   }

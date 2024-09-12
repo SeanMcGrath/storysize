@@ -29,7 +29,7 @@ export default function RoomHeader({
           className="flex items-center gap-2"
           onClick={() => {
             navigator.clipboard.writeText(
-              `${window.location.origin}/join/${room.slug}`,
+              `${window.location.origin}/rooms/${room.slug}`,
             );
             toast({
               title: "Link copied",

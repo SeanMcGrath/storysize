@@ -64,7 +64,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
             className="flex items-center gap-2 text-xs"
             onClick={(event) => {
               navigator.clipboard.writeText(
-                `${window.location.origin}/join/${slug}`,
+                `${window.location.origin}/rooms/${slug}`,
               );
               toast({
                 title: "Link copied",

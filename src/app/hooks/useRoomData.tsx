@@ -3,21 +3,21 @@
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
 
-export default function useRoomData(id: string) {
+export default function useRoomData(idOrSlug: string) {
   const [error, setError] = useState<string | null>(null);
 
   const { data: roomById, error: roomError } = api.room.getRoom.useQuery(
-    { roomId: id },
+    { roomId: idOrSlug },
     {
-      enabled: !id.includes("-") && !error,
+      enabled: !idOrSlug.includes("-") && !error,
     },
   );
 
   const { data: roomBySlug, error: roomBySlugError } =
     api.room.getBySlug.useQuery(
-      { slug: id },
+      { slug: idOrSlug },
       {
-        enabled: id.includes("-") && !error,
+        enabled: idOrSlug.includes("-") && !error,
       },
     );
 
