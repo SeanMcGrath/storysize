@@ -52,13 +52,13 @@ export const voteRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // Check if the user is a participant in the room
       const room = await ctx.db.room.findUnique({
-        where: { 
+        where: {
           id: input.roomId,
           participants: {
             some: {
-              id: ctx.session.user.id
-            }
-          }
+              id: ctx.session.user.id,
+            },
+          },
         },
       });
 

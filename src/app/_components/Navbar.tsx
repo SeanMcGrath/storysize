@@ -24,7 +24,14 @@ const Navbar = () => {
           <div className="flex items-center">
             {session ? (
               <>
-                <span className="mr-4 text-gray-700">{session.user.name}</span>
+                <Button variant="ghost" asChild className="mr-4">
+                  <Link
+                    href="/profile"
+                    className="text-gray-700 hover:text-gray-900"
+                  >
+                    {session.user.name}
+                  </Link>
+                </Button>
                 <Button
                   variant={"secondary"}
                   onClick={() =>
