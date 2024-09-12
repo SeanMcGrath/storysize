@@ -30,7 +30,6 @@ export default function useRoomActions(
         utils.room.getRoom.getData({ roomId }) ??
         utils.room.getBySlug.getData({ slug: room.slug });
 
-      debugger;
       // Optimistically update to the new value
       if (previousRoom && session?.user) {
         const updateData = (old: typeof previousRoom | undefined) => {

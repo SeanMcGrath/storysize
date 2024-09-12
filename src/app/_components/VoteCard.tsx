@@ -3,6 +3,17 @@ interface VoteCardProps {
   isRevealed: boolean;
 }
 
+const colorMap: { [key: string]: string } = {
+  "0.5": "bg-blue-100 border-blue-300",
+  "1": "bg-green-100 border-green-300",
+  "2": "bg-yellow-100 border-yellow-300",
+  "3": "bg-orange-100 border-orange-300",
+  "5": "bg-red-100 border-red-300",
+  "8": "bg-purple-100 border-purple-300",
+  "13": "bg-pink-100 border-pink-300",
+  "?": "bg-gray-100 border-gray-300",
+};
+
 const VoteCard: React.FC<VoteCardProps> = ({ value, isRevealed }) => {
   if (value === null) {
     return (
@@ -31,17 +42,17 @@ const VoteCard: React.FC<VoteCardProps> = ({ value, isRevealed }) => {
         </div>
         {/* Card front */}
         <div className="backface-hidden absolute h-full w-full rounded-lg bg-white p-0.5 shadow-md [transform:rotateY(180deg)]">
-          <div className="relative flex h-full w-full items-center justify-center rounded-md border border-gray-200 bg-white">
+          <div className={`relative flex h-full w-full items-center justify-center rounded-md border ${colorMap[value] || 'border-gray-200 bg-white'}`}>
             {/* Top-left corner */}
-            <div className="absolute left-1 top-1 text-xs font-bold text-gray-500">
+            <div className="absolute left-1 top-1 text-xs font-bold text-gray-700">
               {value}
             </div>
             {/* Bottom-right corner */}
-            <div className="absolute bottom-1 right-1 rotate-180 text-xs font-bold text-gray-500">
+            <div className="absolute bottom-1 right-1 rotate-180 text-xs font-bold text-gray-700">
               {value}
             </div>
             {/* Center value */}
-            <span className="text-2xl font-bold text-gray-500">{value}</span>
+            <span className="text-2xl font-bold text-gray-700">{value}</span>
           </div>
         </div>
       </div>

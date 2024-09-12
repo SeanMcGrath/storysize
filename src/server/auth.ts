@@ -52,6 +52,16 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.GITHUB_CLIENT_SECRET,
     }),
   ],
+  events: {
+    signIn: async ({ user, account, profile }) => {
+      if (user.email && account?.provider === 'github') {
+        await db.user.update({
+          where: { id: user.id },
+          data: { email: user.email },
+        });
+      }
+    },
+  },
 };
 
 /**
