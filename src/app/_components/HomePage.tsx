@@ -8,6 +8,7 @@ import Spinner from "./Spinner";
 import RoomCard from "./RoomCard";
 import { Button } from "~/components/ui/button";
 import StructuredData from "./StructuredData";
+import AdBanner from "./AdBanner";
 
 export default function HomePage() {
   const { data: session, status: sessionStatus } = useSession();
@@ -50,6 +51,7 @@ export default function HomePage() {
   return (
     <>
       <StructuredData />
+      <AdBanner adSlot="YOUR_AD_SLOT_ID" />
       {!session ? (
         <div className="flex flex-col items-center justify-center text-center">
           <p className="mb-4">
@@ -77,6 +79,7 @@ export default function HomePage() {
                 isCurrentUserOwner={room.ownerId === session.user.id}
               />
             ))}
+            <AdBanner adSlot="YOUR_AD_SLOT_ID" />
             <Button
               className="flex h-20 w-full flex-col justify-center rounded-md border-2 border-dashed border-gray-300 p-4 hover:bg-gray-200"
               variant={"ghost"}

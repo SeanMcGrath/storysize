@@ -4,6 +4,7 @@ import Providers from "~/app/_components/Providers";
 import Navbar from "~/app/_components/Navbar";
 import { Toaster } from "~/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/react";
+import AdSenseScript from "./_components/AdSenseScript";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,6 +36,7 @@ export default function RootLayout({
           </div>
         </Providers>
         <Toaster />
+        <AdSenseScript />
       </body>
     </html>
   );
