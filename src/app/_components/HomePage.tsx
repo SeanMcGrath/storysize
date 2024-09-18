@@ -8,8 +8,6 @@ import Spinner from "./Spinner";
 import RoomCard from "./RoomCard";
 import { Button } from "~/components/ui/button";
 import StructuredData from "./StructuredData";
-import AdBanner from "./AdBanner";
-import { AD_SLOT_IDS } from "~/lib/config";
 
 export default function HomePage() {
   const { data: session, status: sessionStatus } = useSession();
@@ -112,7 +110,7 @@ export default function HomePage() {
           </ul>
         </>
       )}
-      <AdBanner adSlot={AD_SLOT_IDS.homePage} />
+      {/* <AdBanner adSlot={AD_SLOT_IDS.homePage} /> */}
     </>
   );
 }
